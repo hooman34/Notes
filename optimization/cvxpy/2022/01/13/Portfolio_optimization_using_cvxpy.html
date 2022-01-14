@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Portfolio optimization using cvxpy | Notes</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Portfolio optimization using cvxpy" />
+<meta name="author" content="Gieun Kwak" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Using cvxpy to solve optimization problems" />
+<meta property="og:description" content="Using cvxpy to solve optimization problems" />
+<link rel="canonical" href="https://hooman34.github.io/Notes/optimization/cvxpy/2022/01/13/Portfolio_optimization_using_cvxpy.html" />
+<meta property="og:url" content="https://hooman34.github.io/Notes/optimization/cvxpy/2022/01/13/Portfolio_optimization_using_cvxpy.html" />
+<meta property="og:site_name" content="Notes" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-01-13T00:00:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Portfolio optimization using cvxpy" />
+<script type="application/ld+json">
+{"url":"https://hooman34.github.io/Notes/optimization/cvxpy/2022/01/13/Portfolio_optimization_using_cvxpy.html","@type":"BlogPosting","headline":"Portfolio optimization using cvxpy","dateModified":"2022-01-13T00:00:00-06:00","datePublished":"2022-01-13T00:00:00-06:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://hooman34.github.io/Notes/optimization/cvxpy/2022/01/13/Portfolio_optimization_using_cvxpy.html"},"author":{"@type":"Person","name":"Gieun Kwak"},"description":"Using cvxpy to solve optimization problems","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/Notes/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hooman34.github.io/Notes/feed.xml" title="Notes" /><link rel="shortcut icon" type="image/x-icon" href="/Notes/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/Notes/">Notes</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/Notes/about/">About Me</a><a class="page-link" href="/Notes/search/">Search</a><a class="page-link" href="/Notes/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Portfolio optimization using cvxpy</h1><p class="page-description">Using cvxpy to solve optimization problems</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-01-13T00:00:00-06:00" itemprop="datePublished">
+        Jan 13, 2022
+      </time>• 
+          <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <span class="p-author h-card" itemprop="name">Gieun Kwak</span></span>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      4 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/Notes/categories/#optimization">optimization</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/Notes/categories/#cvxpy">cvxpy</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-justify-center">
+          <div class="px-2">
+
+    <a href="https://github.com/hooman34/Notes/tree/master/_notebooks/2022-01-13-Portfolio_optimization_using_cvxpy.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/Notes/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/hooman34/Notes/master?filepath=_notebooks%2F2022-01-13-Portfolio_optimization_using_cvxpy.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/Notes/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/hooman34/Notes/blob/master/_notebooks/2022-01-13-Portfolio_optimization_using_cvxpy.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/Notes/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+          <div class="px-2">
+  <a href="https://deepnote.com/launch?url=https%3A%2F%2Fgithub.com%2Fhooman34%2FNotes%2Fblob%2Fmaster%2F_notebooks%2F2022-01-13-Portfolio_optimization_using_cvxpy.ipynb" target="_blank">
+      <img class="notebook-badge-image" src="/Notes/assets/badges/deepnote.svg" alt="Launch in Deepnote"/>
+  </a>
+</div>
+
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#1.-Objective">1. Objective </a></li>
+<li class="toc-entry toc-h2"><a href="#2.-Components-of-optimization">2. Components of optimization </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#2.1-Decision-variable">2.1 Decision variable </a></li>
+<li class="toc-entry toc-h3"><a href="#2.2-Constraints">2.2 Constraints </a></li>
+<li class="toc-entry toc-h3"><a href="#2.3-Objective-function">2.3 Objective function </a></li>
+<li class="toc-entry toc-h3"><a href="#2.4-Assumption">2.4 Assumption </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#3.-Analysis">3. Analysis </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#3.1-Read-ticker-data">3.1 Read ticker data </a></li>
+<li class="toc-entry toc-h3"><a href="#3.2-Derive-monthly-return">3.2 Derive monthly return </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#4.-Specify-the-components-for-optimization">4. Specify the components for optimization </a></li>
+<li class="toc-entry toc-h2"><a href="#5.-Solve-optimization-using-cvxpy">5. Solve optimization using cvxpy </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2022-01-13-Portfolio_optimization_using_cvxpy.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="1.-Objective">
+<a class="anchor" href="#1.-Objective" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Objective<a class="anchor-link" href="#1.-Objective"> </a>
+</h2>
+<p>Would like to know how much investment should go into each stocks, in order to optimize the portfolio.<br>
+Here, optimization means</p>
+<ul>
+<li>expected return exceeds minimum threshold</li>
+<li>minimize the risk of the portfolio return</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="2.-Components-of-optimization">
+<a class="anchor" href="#2.-Components-of-optimization" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Components of optimization<a class="anchor-link" href="#2.-Components-of-optimization"> </a>
+</h2>
+<h3 id="2.1-Decision-variable">
+<a class="anchor" href="#2.1-Decision-variable" aria-hidden="true"><span class="octicon octicon-link"></span></a>2.1 Decision variable<a class="anchor-link" href="#2.1-Decision-variable"> </a>
+</h3>
+<p>Matrix <code>X</code> refers to a portion of each individual stock
+$X = \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix}$ <br>
+Here, the constraint is: $X\geq0$</p>
+<h3 id="2.2-Constraints">
+<a class="anchor" href="#2.2-Constraints" aria-hidden="true"><span class="octicon octicon-link"></span></a>2.2 Constraints<a class="anchor-link" href="#2.2-Constraints"> </a>
+</h3>
+<ul>
+<li>Budget constraint<ul>
+<li>$e^Tx = 1.0$ where $e=[1,1,1]$</li>
+<li>In other words, the investment portion of each stock should sum up to 1</li>
+</ul>
+</li>
+<li>Expected return constraint<ul>
+<li>We want our expected return of our portfolio to be higher than a certain threshold</li>
+<li>$\mathbb E\begin{bmatrix} \sum_{i=1}^{3}\tilde{r}_i x_i\end{bmatrix} = 
+\sum_{i=1}^{3} \mathbb E\begin{bmatrix}\tilde{r}_i\end{bmatrix}x_i = 
+\sum_{i=1}^{3} \bar{r}_i x_i$</li>
+<li>This could be the same this as $\bar{r}^T X$ which means the sum of multiplication of average return and investment portion</li>
+<li>Thus, $ \sum_{i=1}^{3} \bar{r}_i x_i \geq r_{min}$</li>
+<li>$r_{min}$ would be set based on our judgement</li>
+</ul>
+</li>
+</ul>
+<h3 id="2.3-Objective-function">
+<a class="anchor" href="#2.3-Objective-function" aria-hidden="true"><span class="octicon octicon-link"></span></a>2.3 Objective function<a class="anchor-link" href="#2.3-Objective-function"> </a>
+</h3>
+<p>This is the criteria for choosing the best set of decision.</p>
+<ul>
+<li>It is to minimize the variance of the portfolio returns<ul>
+<li>$x^TQx$ where $Q$ is a covariance matrix</li>
+</ul>
+</li>
+</ul>
+<h3 id="2.4-Assumption">
+<a class="anchor" href="#2.4-Assumption" aria-hidden="true"><span class="octicon octicon-link"></span></a>2.4 Assumption<a class="anchor-link" href="#2.4-Assumption"> </a>
+</h3>
+<p>It is assumed that the monthly stock returns have a stationary proability distribution. This means that it has a fixed distribution, and this also means that the projections done based on historical data is valid.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="3.-Analysis">
+<a class="anchor" href="#3.-Analysis" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. Analysis<a class="anchor-link" href="#3.-Analysis"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">cvxpy</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">pandas_datareader</span> <span class="k">as</span> <span class="nn">pdr</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="3.1-Read-ticker-data">
+<a class="anchor" href="#3.1-Read-ticker-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.1 Read ticker data<a class="anchor-link" href="#3.1-Read-ticker-data"> </a>
+</h3>
+<p>It is easy to read ticker data using <code>pandas-datareader</code></p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tickers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'MSFT'</span><span class="p">,</span> <span class="s1">'V'</span><span class="p">,</span> <span class="s1">'WMT'</span><span class="p">]</span>
+
+<span class="n">start_date</span> <span class="o">=</span> <span class="s1">'2019-01-02'</span>
+<span class="n">end_date</span> <span class="o">=</span> <span class="s1">'2021-12-31'</span>
+
+<span class="n">stock_price</span> <span class="o">=</span> <span class="n">pdr</span><span class="o">.</span><span class="n">DataReader</span><span class="p">(</span><span class="n">tickers</span><span class="p">,</span> <span class="s1">'yahoo'</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span>
+<span class="n">stock_price</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead tr th {
+        text-align: left;
+    }
+
+    .dataframe thead tr:last-of-type th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr>
+      <th>Attributes</th>
+      <th colspan="3" halign="left">Adj Close</th>
+      <th colspan="3" halign="left">Close</th>
+      <th colspan="3" halign="left">High</th>
+      <th colspan="3" halign="left">Low</th>
+      <th colspan="3" halign="left">Open</th>
+      <th colspan="3" halign="left">Volume</th>
+    </tr>
+    <tr>
+      <th>Symbols</th>
+      <th>MSFT</th>
+      <th>V</th>
+      <th>WMT</th>
+      <th>MSFT</th>
+      <th>V</th>
+      <th>WMT</th>
+      <th>MSFT</th>
+      <th>V</th>
+      <th>WMT</th>
+      <th>MSFT</th>
+      <th>V</th>
+      <th>WMT</th>
+      <th>MSFT</th>
+      <th>V</th>
+      <th>WMT</th>
+      <th>MSFT</th>
+      <th>V</th>
+      <th>WMT</th>
+    </tr>
+    <tr>
+      <th>Date</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2019-01-02</th>
+      <td>97.782417</td>
+      <td>130.463150</td>
+      <td>88.576424</td>
+      <td>101.120003</td>
+      <td>132.919998</td>
+      <td>93.339996</td>
+      <td>101.750000</td>
+      <td>133.740005</td>
+      <td>93.650002</td>
+      <td>98.940002</td>
+      <td>129.600006</td>
+      <td>91.639999</td>
+      <td>99.550003</td>
+      <td>130.000000</td>
+      <td>91.639999</td>
+      <td>35329300.0</td>
+      <td>8788000.0</td>
+      <td>8152700.0</td>
+    </tr>
+    <tr>
+      <th>2019-01-03</th>
+      <td>94.185211</td>
+      <td>125.761711</td>
+      <td>88.120903</td>
+      <td>97.400002</td>
+      <td>128.130005</td>
+      <td>92.860001</td>
+      <td>100.190002</td>
+      <td>131.279999</td>
+      <td>94.709999</td>
+      <td>97.199997</td>
+      <td>127.879997</td>
+      <td>92.699997</td>
+      <td>100.099998</td>
+      <td>131.210007</td>
+      <td>93.209999</td>
+      <td>42579100.0</td>
+      <td>9428300.0</td>
+      <td>8277300.0</td>
+    </tr>
+    <tr>
+      <th>2019-01-04</th>
+      <td>98.565704</td>
+      <td>131.179657</td>
+      <td>88.671318</td>
+      <td>101.930000</td>
+      <td>133.649994</td>
+      <td>93.440002</td>
+      <td>102.510002</td>
+      <td>134.589996</td>
+      <td>93.660004</td>
+      <td>98.930000</td>
+      <td>130.130005</td>
+      <td>92.690002</td>
+      <td>99.720001</td>
+      <td>130.440002</td>
+      <td>93.209999</td>
+      <td>44060600.0</td>
+      <td>11065800.0</td>
+      <td>8029100.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="3.2-Derive-monthly-return">
+<a class="anchor" href="#3.2-Derive-monthly-return" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.2 Derive monthly return<a class="anchor-link" href="#3.2-Derive-monthly-return"> </a>
+</h3>
+<p>We'll just take the close price for each ticker. The monthly return will be used for simplicity.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">stock_price</span> <span class="o">=</span> <span class="n">stock_price</span><span class="p">[[(</span>    <span class="s1">'Close'</span><span class="p">,</span> <span class="s1">'MSFT'</span><span class="p">),</span>
+                            <span class="p">(</span>    <span class="s1">'Close'</span><span class="p">,</span>    <span class="s1">'V'</span><span class="p">),</span>
+                            <span class="p">(</span>    <span class="s1">'Close'</span><span class="p">,</span>  <span class="s1">'WMT'</span><span class="p">)]]</span>
+<span class="n">stock_price</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'MSFT'</span><span class="p">,</span> <span class="s1">'V'</span><span class="p">,</span> <span class="s1">'WMT'</span><span class="p">]</span>
+<span class="n">stock_price</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">stock_price</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Date</th>
+      <th>MSFT</th>
+      <th>V</th>
+      <th>WMT</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2019-01-02</td>
+      <td>101.120003</td>
+      <td>132.919998</td>
+      <td>93.339996</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2019-01-03</td>
+      <td>97.400002</td>
+      <td>128.130005</td>
+      <td>92.860001</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2019-01-04</td>
+      <td>101.930000</td>
+      <td>133.649994</td>
+      <td>93.440002</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">stock_price</span><span class="p">[</span><span class="s1">'year'</span><span class="p">]</span> <span class="o">=</span> <span class="n">stock_price</span><span class="o">.</span><span class="n">Date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span>
+<span class="n">stock_price</span><span class="p">[</span><span class="s1">'month'</span><span class="p">]</span> <span class="o">=</span> <span class="n">stock_price</span><span class="o">.</span><span class="n">Date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span>
+
+<span class="n">stock_price</span> <span class="o">=</span> <span class="n">stock_price</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">'year'</span><span class="p">,</span> <span class="s1">'month'</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">stock_price</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>MSFT</th>
+      <th>V</th>
+      <th>WMT</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>104.135238</td>
+      <td>136.442381</td>
+      <td>95.809047</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>107.927894</td>
+      <td>143.581579</td>
+      <td>97.775263</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>115.133810</td>
+      <td>152.260954</td>
+      <td>98.275714</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>
+$$stockReturn = \frac{price_t-price_{t-1}}{price_{t-1}}$$
+</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">stock_price_shift</span> <span class="o">=</span> <span class="n">stock_price</span><span class="o">.</span><span class="n">shift</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"MSFT"</span><span class="p">:</span><span class="s2">"MSFT_sft"</span><span class="p">,</span> 
+                                                        <span class="s2">"V"</span><span class="p">:</span><span class="s2">"V_sft"</span><span class="p">,</span> 
+                                                        <span class="s2">"WMT"</span><span class="p">:</span><span class="s2">"WMT_sft"</span><span class="p">})</span>
+<span class="n">stock_price</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">stock_price</span><span class="p">,</span> <span class="n">stock_price_shift</span><span class="p">[[</span><span class="s1">'MSFT_sft'</span><span class="p">,</span> <span class="s1">'V_sft'</span><span class="p">,</span> <span class="s1">'WMT_sft'</span><span class="p">]]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">stock_price</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>MSFT</th>
+      <th>V</th>
+      <th>WMT</th>
+      <th>MSFT_sft</th>
+      <th>V_sft</th>
+      <th>WMT_sft</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>104.135238</td>
+      <td>136.442381</td>
+      <td>95.809047</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>107.927894</td>
+      <td>143.581579</td>
+      <td>97.775263</td>
+      <td>104.135238</td>
+      <td>136.442381</td>
+      <td>95.809047</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>115.133810</td>
+      <td>152.260954</td>
+      <td>98.275714</td>
+      <td>107.927894</td>
+      <td>143.581579</td>
+      <td>97.775263</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">monthly_returns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">ticker</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'MSFT'</span><span class="p">,</span> <span class="s1">'V'</span><span class="p">,</span> <span class="s1">'WMT'</span><span class="p">]:</span>
+    <span class="n">returns</span> <span class="o">=</span> <span class="p">(</span><span class="n">stock_price</span><span class="p">[</span><span class="n">ticker</span><span class="p">]</span> <span class="o">-</span> <span class="n">stock_price</span><span class="p">[</span><span class="n">ticker</span><span class="o">+</span><span class="s1">'_sft'</span><span class="p">])</span> <span class="o">/</span> <span class="n">stock_price</span><span class="p">[</span><span class="n">ticker</span><span class="o">+</span><span class="s1">'_sft'</span><span class="p">]</span>
+    <span class="n">monthly_returns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">monthly_returns</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">returns</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    
+<span class="c1"># rename the column names</span>
+<span class="n">monthly_returns</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'MSFT'</span><span class="p">,</span> <span class="s1">'V'</span><span class="p">,</span> <span class="s1">'WMT'</span><span class="p">]</span>
+<span class="c1"># drop first row since it is not used when calculating stock returns</span>
+<span class="n">monthly_returns</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">monthly_returns</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>MSFT</th>
+      <th>V</th>
+      <th>WMT</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.036420</td>
+      <td>0.052324</td>
+      <td>0.020522</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.066766</td>
+      <td>0.060449</td>
+      <td>0.005118</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.066540</td>
+      <td>0.050027</td>
+      <td>0.026698</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="4.-Specify-the-components-for-optimization">
+<a class="anchor" href="#4.-Specify-the-components-for-optimization" aria-hidden="true"><span class="octicon octicon-link"></span></a>4. Specify the components for optimization<a class="anchor-link" href="#4.-Specify-the-components-for-optimization"> </a>
+</h2>
+<p>To reiterate, the objective of this analysis is to build a portfolio that has minimum risk. <br>
+And while there are many ways to represent risk, we will use the variance of the return.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"Average monthly return over the two years."</span><span class="p">)</span>
+<span class="n">monthly_returns</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Average monthly return over the two years.
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>index</th>
+      <th>0</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>MSFT</td>
+      <td>0.034952</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>V</td>
+      <td>0.013684</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>WMT</td>
+      <td>0.011622</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"Standard deviation of each stock over two years."</span><span class="p">)</span>
+<span class="n">monthly_returns</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Standard deviation of each stock over two years.
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>index</th>
+      <th>0</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>MSFT</td>
+      <td>0.049329</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>V</td>
+      <td>0.048437</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>WMT</td>
+      <td>0.035628</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now, in order to utilize cvxpy to optimize the current problem, we would have to specify the components we have identified earlier.</p>
+<p><strong>Objective</strong></p>
+<ul>
+<li>minimize $x^TQx$ where $Q$ is a covariance matrix (risk)</li>
+</ul>
+<p><strong>Constraints</strong></p>
+<ul>
+<li>$X&gt;0$ where X is a portion of budget that goes into each stock</li>
+<li>$\sum X=1$ Investment portion of each stock should sum up to 1</li>
+<li>$ \sum_{i=1}^{3} \bar{r}_i x_i \geq r_{min}$</li>
+</ul>
+<p>For $r_{min}$, lets set it to 2% since Microsoft has the highest monthly average return, and it is 3.5%. <br>
+Realistically, a portfolio which is a combination of other stocks would have lower average return.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">symbols</span> <span class="o">=</span> <span class="n">monthly_returns</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+<span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+<span class="n">min_return</span> <span class="o">=</span> <span class="mf">0.02</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">monthly_returns</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
+<span class="c1"># potfolio_return = multiply(r.T, x)</span>
+<span class="n">potfolio_return</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">x</span>
+
+<span class="c1"># objective is to minimize risk</span>
+<span class="n">covariance_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asmatrix</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">monthly_returns</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span><span class="p">))</span> 
+<span class="n">risk</span> <span class="o">=</span> <span class="n">quad_form</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">covariance_matrix</span><span class="p">)</span>
+
+<span class="c1"># set the optimization problem</span>
+<span class="n">prob</span> <span class="o">=</span> <span class="n">Problem</span><span class="p">(</span><span class="n">Minimize</span><span class="p">(</span><span class="n">risk</span><span class="p">),</span> 
+               <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="n">potfolio_return</span> <span class="o">&gt;=</span> <span class="n">min_return</span><span class="p">,</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="5.-Solve-optimization-using-cvxpy">
+<a class="anchor" href="#5.-Solve-optimization-using-cvxpy" aria-hidden="true"><span class="octicon octicon-link"></span></a>5. Solve optimization using cvxpy<a class="anchor-link" href="#5.-Solve-optimization-using-cvxpy"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">prob</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0.0009641333660832668</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"Here is the portion of each stock in order to minimize risk while the return is bigger than 2%.</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">symbols</span><span class="p">)):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="si">{}</span><span class="s2">: </span><span class="si">{:.2f}</span><span class="s2">%"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">symbols</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">x</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="p">))</span>
+    
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"The volatility of this portfolio is </span><span class="si">{:.5f}</span><span class="s2">%"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">risk</span><span class="o">.</span><span class="n">value</span><span class="o">**</span><span class="mf">0.5</span><span class="o">*</span><span class="mi">100</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"The return of this portfolio is </span><span class="si">{}</span><span class="s2">%"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">potfolio_return</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Here is the portion of each stock in order to minimize risk while the return is bigger than 2%.
+
+MSFT: 34.33%
+V: 17.87%
+WMT: 47.79%
+
+The volatility of this portfolio is 3.10505%
+The return of this portfolio is 2.0%
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<hr>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You can check out for the official example of csvpy for portfolio optimization <a href="https://colab.research.google.com/github/cvxgrp/cvx_short_course/blob/master/applications/portfolio_optimization.ipynb">here</a></p>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="hooman34/Notes"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/Notes/optimization/cvxpy/2022/01/13/Portfolio_optimization_using_cvxpy.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/Notes/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/Notes/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/Notes/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>All the learnings, distilled here.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/fastai" target="_blank" title="fastai"><svg class="svg-icon grey"><use xlink:href="/Notes/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/fastdotai" target="_blank" title="fastdotai"><svg class="svg-icon grey"><use xlink:href="/Notes/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
