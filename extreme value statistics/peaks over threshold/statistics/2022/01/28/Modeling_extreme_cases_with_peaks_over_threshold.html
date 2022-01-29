@@ -210,27 +210,17 @@ window.onload = wrap_img;
 <li>Block maxima</li>
 <li>Peaks over threshold</li>
 </ol>
-<p> Both methods aim to fit a distribution to extreme cases, which looks like this:
-<figure>
-  
-    <img class="docimage" src="/Notes/images/copied_from_nb/my&lt;em&gt;icons/01&lt;/em&gt;/child_distribution.png" alt="Drawing">
-    
-    
-</figure>
-</p>
+<p> Both methods aim to fit a distribution to extreme cases, which looks like this:</p>
+<p><img src="/Notes/images/copied_from_nb/my_icons/01_/child_distribution.png" alt="">
+<!-- <img src="my_icons/01_/child_distribution.png" alt="Drawing" style="width: 400px;"/> --></p>
 <p> A normal distribution won't be a good fit since it doesn't take much consideration on the far right or left data points. Thus we cut the tail of the distribution.</p>
 <h4 id="Block-maxima">
 <a class="anchor" href="#Block-maxima" aria-hidden="true"><span class="octicon octicon-link"></span></a>Block maxima<a class="anchor-link" href="#Block-maxima"> </a>
 </h4>
 <p> The block maxima method chooses the maximum value for each time span e.g. year. The data points extracted like this tends to follow a GEV (Generalized Extreme Value) distribution. However, the extimated Value At Risk calculated based on this method tends to be unstable according to the specified time span. <br>
  We will focus on a more stable method; peaks over threshold.</p>
-<p><figure>
-  
-    <img class="docimage" src="/Notes/images/copied_from_nb/my&lt;em&gt;icons/01&lt;/em&gt;/block_maxima.png" alt="Drawing">
-    
-    
-</figure>
-</p>
+<p><img src="/Notes/images/copied_from_nb/my_icons/01_/block_maxima.png" alt="">
+<!-- <img src="my_icons/01_/block_maxima.png" alt="Drawing" style="width: 400px;"/> --></p>
 
 </div>
 </div>
@@ -242,13 +232,9 @@ window.onload = wrap_img;
 <a class="anchor" href="#Peaks-over-threshold" aria-hidden="true"><span class="octicon octicon-link"></span></a>Peaks over threshold<a class="anchor-link" href="#Peaks-over-threshold"> </a>
 </h4>
 <p> As the name mentiones, this methods sets a threshold and tries to fit a distribution for data points that goes over that threshold.</p>
-<p><figure>
-  
-    <img class="docimage" src="/Notes/images/copied_from_nb/my&lt;em&gt;icons/01&lt;/em&gt;/peaks_over_threshold.png" alt="Drawing">
-    
-    
-</figure>
-</p>
+<p><img src="/Notes/images/copied_from_nb/my_icons/01_/peaks_over_threshold.png" alt=""></p>
+<!-- <img src="my_icons/01_/peaks_over_threshold.png" alt="Drawing" style="width: 400px;"/> -->
+
 <p> Then it would mean that choosing the right threshold is critical in the process of this method.<br>
  Here are the methods introduced for choosing the appropriate threshold.</p>
 <table>
@@ -293,15 +279,7 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<hr>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>On the next post, we'll look into the mathematical details of peaks overthreshold.</p>
+<p>In the next post, we'll look into the mathematical details of peaks overthreshold.</p>
 
 </div>
 </div>
