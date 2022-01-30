@@ -3,7 +3,7 @@
     
         "post0": {
             "title": "test",
-            "content": "print(&quot;test&quot;) .",
+            "content": "print(&quot;test&quot;) . .",
             "url": "https://hooman34.github.io/Notes/2022/01/30/test_R.html",
             "relUrl": "/2022/01/30/test_R.html",
             "date": " • Jan 30, 2022"
