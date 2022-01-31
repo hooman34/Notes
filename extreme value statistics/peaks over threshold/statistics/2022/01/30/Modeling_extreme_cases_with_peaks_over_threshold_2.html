@@ -151,7 +151,7 @@ window.onload = wrap_img;
     <ul id="toc" class="section-nav">
 <li class="toc-entry toc-h3"><a href="#Overview">Overview </a></li>
 <li class="toc-entry toc-h3"><a href="#How-the-GP-distribution-looks-like:">How the GP distribution looks like: </a></li>
-<li class="toc-entry toc-h3"><a href="#Starting-off-with-creating-sample-data">Starting off with creating sample data </a></li>
+<li class="toc-entry toc-h3"><a href="#Starting-off-by-creating-sample-data">Starting off by creating sample data </a></li>
 <li class="toc-entry toc-h3"><a href="#Setting-the-threshold">Setting the threshold </a></li>
 <li class="toc-entry toc-h3"><a href="#Back-testing-for-model-assessment">Back-testing for model assessment </a></li>
 <li class="toc-entry toc-h3"><a href="#Final-look-of-the-model">Final look of the model </a></li>
@@ -374,8 +374,8 @@ Peaks over threshold method sets a threshold to sort out the data it wants to mo
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Starting-off-with-creating-sample-data">
-<a class="anchor" href="#Starting-off-with-creating-sample-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>Starting off with creating sample data<a class="anchor-link" href="#Starting-off-with-creating-sample-data"> </a>
+<h3 id="Starting-off-by-creating-sample-data">
+<a class="anchor" href="#Starting-off-by-creating-sample-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>Starting off by creating sample data<a class="anchor-link" href="#Starting-off-by-creating-sample-data"> </a>
 </h3>
 </div>
 </div>
@@ -1274,6 +1274,7 @@ $VaR_{q} = \mu + \frac{\hat \sigma}{\hat \xi}[ \{ {\frac{1}{rate}(1-q)} \}^{-\xi
 <div class=" highlight hl-r"><pre><span></span><span class="n">threshL</span> <span class="o">=</span> <span class="m">105</span>
 <span class="n">fitL</span> <span class="o">&lt;-</span> <span class="nf">fevd</span><span class="p">(</span><span class="n">Prec</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="n">threshL</span><span class="p">,</span> <span class="n">type</span> <span class="o">=</span> <span class="s">"GP"</span><span class="p">,</span> 
                <span class="n">time.units</span> <span class="o">=</span> <span class="s">"364/year"</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s">"MLE"</span><span class="p">)</span>
+<span class="nf">summary</span><span class="p">(</span><span class="n">fitL</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -1281,23 +1282,6 @@ $VaR_{q} = \mu + \frac{\hat \sigma}{\hat \xi}[ \{ {\frac{1}{rate}(1-q)} \}^{-\xi
 </div>
 
     </details>
-</div>
-    
-
-    
-    
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-r"><pre><span></span><span class="nf">summary</span><span class="p">(</span><span class="n">fitL</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
 <div class="output_wrapper">
 <div class="output">
 
@@ -1343,6 +1327,9 @@ shape -0.3506362  0.006396566
     
     
 <div class="cell border-box-sizing code_cell rendered">
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
+        <p></p>
 <div class="input">
 
 <div class="inner_cell">
@@ -1354,6 +1341,7 @@ shape -0.3506362  0.006396566
 </div>
 </div>
 
+    </details>
 <div class="output_wrapper">
 <div class="output">
 
@@ -1452,6 +1440,9 @@ And for very extreme cases such as 200 year return period, the result is like be
     
     
 <div class="cell border-box-sizing code_cell rendered">
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
+        <p></p>
 <div class="input">
 
 <div class="inner_cell">
@@ -1463,6 +1454,7 @@ And for very extreme cases such as 200 year return period, the result is like be
 </div>
 </div>
 
+    </details>
 <div class="output_wrapper">
 <div class="output">
 
