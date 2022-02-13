@@ -98,7 +98,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      8 min read
+      15 min read
     
 </span></p>
 
@@ -992,6 +992,655 @@ $\displaystyle - 400 x_{1}$
 </div>
 </div>
 </div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">newton_iteration</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    x: initial value</span>
+<span class="sd">    """</span>
+    <span class="c1"># initialization</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span>
+    <span class="c1"># calculate hessian matrix and first derivative matrix</span>
+    <span class="n">hessian_m</span> <span class="o">=</span> <span class="n">hessian_matrix</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="n">first_order_m</span> <span class="o">=</span> <span class="n">first_order_matrix</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="c1"># use them to calculate the gradient</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">hessian_m</span><span class="p">),</span> <span class="n">first_order_m</span><span class="p">)</span>
+    <span class="c1"># calculate the l2 norm of gradient. used as a stopping criteria</span>
+    <span class="n">gradient_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">first_order_m</span><span class="p">)</span>
+
+    <span class="c1"># initial value for alpha and parameters for line search</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">rho</span> <span class="o">=</span> <span class="mf">0.2</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="mf">0.4</span>
+        
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Initialized algorithm."</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"step: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">d: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">gradient: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">threshold: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">gradient_norm</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"-"</span><span class="o">*</span><span class="mi">40</span><span class="p">)</span>
+    
+    <span class="c1"># run until gradient is small enough</span>
+    <span class="k">while</span> <span class="n">gradient_norm</span> <span class="o">&gt;</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># perform line search -&gt; find appropriate alpha</span>
+        <span class="k">while</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">alpha</span><span class="o">*</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">alpha</span><span class="o">*</span><span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">c</span><span class="o">*</span><span class="n">alpha</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">first_order_matrix</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+            <span class="n">alpha</span> <span class="o">*=</span> <span class="n">rho</span>
+        <span class="c1"># update x</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">alpha</span><span class="o">*</span><span class="n">d</span>
+        <span class="c1"># calculate updated hessian and first order matrix</span>
+        <span class="n">hessian_m</span> <span class="o">=</span> <span class="n">hessian_matrix</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">first_order_m</span> <span class="o">=</span> <span class="n">first_order_matrix</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="c1"># update d</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">hessian_m</span><span class="p">),</span> <span class="n">first_order_m</span><span class="p">)</span>
+        <span class="c1"># update norm value of gradient</span>
+        <span class="n">gradient_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">first_order_m</span><span class="p">)</span>
+        <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">function_value</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"step: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">alpha: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">x: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">updated function value: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">function_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"d: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">gradient norm: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">threshold: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">gradient_norm</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">x</span><span class="p">,</span><span class="n">k</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
+        <p></p>
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">x</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">newton_iteration</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.1</span><span class="p">],[</span><span class="mf">1.1</span><span class="p">]]),</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Function converged at step </span><span class="si">{}</span><span class="s2">. </span><span class="se">\n</span><span class="s2">x = </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+    </details>
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Function converged at step 44. 
+x = [[1.00000816]
+ [1.00001616]]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If the starting point is $[x1,x2]^T=[1.2, 1.2]^T$, the function converges to $[x1,x2]^T\approx[1, 1]^T$ at step 44.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
+        <p></p>
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">x</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">newton_iteration</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">6</span><span class="p">],[</span><span class="mi">4</span><span class="p">]]),</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Function converged at step </span><span class="si">{}</span><span class="s2">. </span><span class="se">\n</span><span class="s2">x = </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+    </details>
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Function converged at step 491. 
+x = [[1.00001367]
+ [1.00002717]]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If the starting point is $[6, 4]^T$, it takes more iterations (491 steps), but the $x$ value is similar $[x1,x2]^T\approx[1, 1]^T$</p>
+<p>Since the gradient is an iterative process, and optimizing a function get exponentially hard as the function gets complicated, the exact number would differ depending on where the iteration starts. That is also why there are local and global minimuns.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><br>
+<br>
+The gradient descent process is printed out for your reference. You can see the gradient decreasing as the function value decreases, while $x$ converges towards 1</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
+        <p></p>
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">x</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">newton_iteration</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.1</span><span class="p">],[</span><span class="mf">1.1</span><span class="p">]]),</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+    </details>
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Initialized algorithm.
+step: 0
+d: [[-0.00434783]
+ [ 0.10043478]]
+gradient: 53.34753977457635
+threshold: 0.0001
+----------------------------------------
+step: 1
+alpha: 1
+x: [[1.09565217]
+ [1.20043478]]
+updated function value: 0.009149374108868819
+d: [[-0.0952919 ]
+ [-0.20879466]]
+gradient norm: 0.19962485729758325
+threshold: 0.0001
+
+step: 2
+alpha: 0.2
+x: [[1.07659379]
+ [1.15867585]]
+updated function value: 0.0058809236765559915
+d: [[-0.07120573]
+ [-0.15294095]]
+gradient norm: 0.3250473248156841
+threshold: 0.0001
+
+step: 3
+alpha: 0.2
+x: [[1.06235265]
+ [1.12808766]]
+updated function value: 0.003913404243300558
+d: [[-0.05662774]
+ [-0.11981177]]
+gradient norm: 0.35423959760700396
+threshold: 0.0001
+
+step: 4
+alpha: 0.2
+x: [[1.0510271 ]
+ [1.10412531]]
+updated function value: 0.0026321371824487164
+d: [[-0.04611446]
+ [-0.09640244]]
+gradient norm: 0.3429543838077912
+threshold: 0.0001
+
+step: 5
+alpha: 0.2
+x: [[1.04180421]
+ [1.08484482]]
+updated function value: 0.0017737229394667728
+d: [[-0.03792668]
+ [-0.07851316]]
+gradient norm: 0.3137556000113143
+threshold: 0.0001
+
+step: 6
+alpha: 0.2
+x: [[1.03421887]
+ [1.06914219]]
+updated function value: 0.0011926921395593723
+d: [[-0.03129878]
+ [-0.06427308]]
+gradient norm: 0.27756728506417017
+threshold: 0.0001
+
+step: 7
+alpha: 0.2
+x: [[1.02795912]
+ [1.05628757]]
+updated function value: 0.000798717397382519
+d: [[-0.02582888]
+ [-0.0526897 ]]
+gradient norm: 0.2400900376255633
+threshold: 0.0001
+
+step: 8
+alpha: 0.2
+x: [[1.02279334]
+ [1.04574963]]
+updated function value: 0.0005322515681819315
+d: [[-0.021276  ]
+ [-0.04316532]]
+gradient norm: 0.20432202337886463
+threshold: 0.0001
+
+step: 9
+alpha: 0.2
+x: [[1.01853814]
+ [1.03711657]]
+updated function value: 0.0003528662051710774
+d: [[-0.01747768]
+ [-0.0353    ]]
+gradient norm: 0.17175012620431226
+threshold: 0.0001
+
+step: 10
+alpha: 0.2
+x: [[1.0150426 ]
+ [1.03005657]]
+updated function value: 0.0002327782263645213
+d: [[-0.01431288]
+ [-0.02880145]]
+gradient norm: 0.14298481269502508
+threshold: 0.0001
+
+step: 11
+alpha: 0.2
+x: [[1.01218003]
+ [1.02429628]]
+updated function value: 0.0001528529201920002
+d: [[-0.01168431]
+ [-0.02344112]]
+gradient norm: 0.11812679939146666
+threshold: 0.0001
+
+step: 12
+alpha: 0.2
+x: [[1.00984316]
+ [1.01960805]]
+updated function value: 9.995613546068292e-05
+d: [[-0.00951   ]
+ [-0.01903206]]
+gradient norm: 0.09698963848128284
+threshold: 0.0001
+
+step: 13
+alpha: 0.2
+x: [[1.00794116]
+ [1.01580164]]
+updated function value: 6.512846188240299e-05
+d: [[-0.00771924]
+ [-0.01541733]]
+gradient norm: 0.07923808656277329
+threshold: 0.0001
+
+step: 14
+alpha: 0.2
+x: [[1.00639732]
+ [1.01271818]]
+updated function value: 4.2303526271417644e-05
+d: [[-0.00625057]
+ [-0.01246374]]
+gradient norm: 0.06447413557389624
+threshold: 0.0001
+
+step: 15
+alpha: 0.2
+x: [[1.0051472 ]
+ [1.01022543]]
+updated function value: 2.7405114468215976e-05
+d: [[-0.00505076]
+ [-0.01005805]]
+gradient norm: 0.05228928155837711
+threshold: 0.0001
+
+step: 16
+alpha: 0.2
+x: [[1.00413705]
+ [1.00821382]]
+updated function value: 1.7714179820000433e-05
+d: [[-0.00407399]
+ [-0.00810429]]
+gradient norm: 0.042294696053979584
+threshold: 0.0001
+
+step: 17
+alpha: 0.2
+x: [[1.00332225]
+ [1.00659296]]
+updated function value: 1.1428983950133293e-05
+d: [[-0.00328118]
+ [-0.00652159]]
+gradient norm: 0.03413701016380426
+threshold: 0.0001
+
+step: 18
+alpha: 0.2
+x: [[1.00266601]
+ [1.00528864]]
+updated function value: 7.362607422700623e-06
+d: [[-0.00263936]
+ [-0.0052423 ]]
+gradient norm: 0.027504938021446976
+threshold: 0.0001
+
+step: 19
+alpha: 0.2
+x: [[1.00213814]
+ [1.00424018]]
+updated function value: 4.737096082738663e-06
+d: [[-0.00212089]
+ [-0.00421017]]
+gradient norm: 0.022130294612251602
+threshold: 0.0001
+
+step: 20
+alpha: 0.2
+x: [[1.00171396]
+ [1.00339815]]
+updated function value: 3.0447323568498954e-06
+d: [[-0.00170282]
+ [-0.00337876]]
+gradient norm: 0.017785795014394316
+threshold: 0.0001
+
+step: 21
+alpha: 0.2
+x: [[1.0013734]
+ [1.0027224]]
+updated function value: 1.955353864088912e-06
+d: [[-0.00136622]
+ [-0.00270989]]
+gradient norm: 0.014281198855098794
+threshold: 0.0001
+
+step: 22
+alpha: 0.2
+x: [[1.00110016]
+ [1.00218042]]
+updated function value: 1.2549004612078538e-06
+d: [[-0.00109553]
+ [-0.00217237]]
+gradient norm: 0.011458789044168765
+threshold: 0.0001
+
+step: 23
+alpha: 0.2
+x: [[1.00088105]
+ [1.00174594]]
+updated function value: 8.049277112761418e-07
+d: [[-0.00087808]
+ [-0.00174077]]
+gradient norm: 0.009188780777784835
+threshold: 0.0001
+
+step: 24
+alpha: 0.2
+x: [[1.00070544]
+ [1.00139779]]
+updated function value: 5.16076208111751e-07
+d: [[-0.00070352]
+ [-0.00139446]]
+gradient norm: 0.00736499520209676
+threshold: 0.0001
+
+step: 25
+alpha: 0.2
+x: [[1.00056473]
+ [1.0011189 ]]
+updated function value: 3.307632542718407e-07
+d: [[-0.0005635 ]
+ [-0.00111676]]
+gradient norm: 0.005900963590270291
+threshold: 0.0001
+
+step: 26
+alpha: 0.2
+x: [[1.00045203]
+ [1.00089554]]
+updated function value: 2.119323136229432e-07
+d: [[-0.00045124]
+ [-0.00089417]]
+gradient norm: 0.00472652355749282
+threshold: 0.0001
+
+step: 27
+alpha: 0.2
+x: [[1.00036178]
+ [1.00071671]]
+updated function value: 1.3576189126097238e-07
+d: [[-0.00036128]
+ [-0.00071583]]
+gradient norm: 0.0037849075285548606
+threshold: 0.0001
+
+step: 28
+alpha: 0.2
+x: [[1.00028953]
+ [1.00057354]]
+updated function value: 8.695187002111232e-08
+d: [[-0.0002892 ]
+ [-0.00057298]]
+gradient norm: 0.003030290360051668
+threshold: 0.0001
+
+step: 29
+alpha: 0.2
+x: [[1.00023169]
+ [1.00045895]]
+updated function value: 5.568216012573998e-08
+d: [[-0.00023148]
+ [-0.00045859]]
+gradient norm: 0.002425747303054435
+threshold: 0.0001
+
+step: 30
+alpha: 0.2
+x: [[1.00018539]
+ [1.00036723]]
+updated function value: 3.565348531745216e-08
+d: [[-0.00018526]
+ [-0.000367  ]]
+gradient norm: 0.001941568396278841
+threshold: 0.0001
+
+step: 31
+alpha: 0.2
+x: [[1.00014834]
+ [1.00029383]]
+updated function value: 2.2826895374249215e-08
+d: [[-0.00014825]
+ [-0.00029368]]
+gradient norm: 0.0015538763558939346
+threshold: 0.0001
+
+step: 32
+alpha: 0.2
+x: [[1.00011869]
+ [1.00023509]]
+updated function value: 1.4613653716375122e-08
+d: [[-0.00011863]
+ [-0.000235  ]]
+gradient norm: 0.001243499182237761
+threshold: 0.0001
+
+step: 33
+alpha: 0.2
+x: [[1.00009496]
+ [1.00018809]]
+updated function value: 9.355013775390774e-09
+d: [[-9.49261392e-05]
+ [-1.88033408e-04]]
+gradient norm: 0.0009950542554677025
+threshold: 0.0001
+
+step: 34
+alpha: 0.2
+x: [[1.00007598]
+ [1.00015049]]
+updated function value: 5.9883745449197485e-09
+d: [[-7.59534568e-05]
+ [-1.50448575e-04]]
+gradient norm: 0.0007962066119685916
+threshold: 0.0001
+
+step: 35
+alpha: 0.2
+x: [[1.00006079]
+ [1.0001204 ]]
+updated function value: 3.833156859157997e-09
+d: [[-6.07707990e-05]
+ [-1.20372852e-04]]
+gradient norm: 0.000637069775853806
+threshold: 0.0001
+
+step: 36
+alpha: 0.2
+x: [[1.00004863]
+ [1.00009632]]
+updated function value: 2.4535262533249835e-09
+d: [[-4.86217830e-05]
+ [-9.63072398e-05]]
+gradient norm: 0.0005097227089664632
+threshold: 0.0001
+
+step: 37
+alpha: 0.2
+x: [[1.00003891]
+ [1.00007706]]
+updated function value: 1.5704134538484076e-09
+d: [[-3.89007196e-05]
+ [-7.70515274e-05]]
+gradient norm: 0.0004078209843882173
+threshold: 0.0001
+
+step: 38
+alpha: 0.2
+x: [[1.00003113]
+ [1.00006165]]
+updated function value: 1.0051448367064757e-09
+d: [[-3.11226839e-05]
+ [-6.16448937e-05]]
+gradient norm: 0.00032628419496853685
+threshold: 0.0001
+
+step: 39
+alpha: 0.2
+x: [[1.0000249 ]
+ [1.00004932]]
+updated function value: 6.433337797516271e-10
+d: [[-2.48994967e-05]
+ [-4.93182655e-05]]
+gradient norm: 0.0002610448991252154
+threshold: 0.0001
+
+step: 40
+alpha: 0.2
+x: [[1.00001992]
+ [1.00003946]]
+updated function value: 4.1175465760644115e-10
+d: [[-1.99204612e-05]
+ [-3.94561170e-05]]
+gradient norm: 0.0002088471481323487
+threshold: 0.0001
+
+step: 41
+alpha: 0.2
+x: [[1.00001594]
+ [1.00003157]]
+updated function value: 2.635337540940221e-10
+d: [[-1.59369220e-05]
+ [-3.15658567e-05]]
+gradient norm: 0.0001670849055650914
+threshold: 0.0001
+
+step: 42
+alpha: 0.2
+x: [[1.00001275]
+ [1.00002525]]
+updated function value: 1.6866711905022221e-10
+d: [[-1.27498915e-05]
+ [-2.52533019e-05]]
+gradient norm: 0.0001336725245054508
+threshold: 0.0001
+
+step: 43
+alpha: 0.2
+x: [[1.0000102]
+ [1.0000202]]
+updated function value: 1.0794978077835293e-10
+d: [[-1.02001398e-05]
+ [-2.02030360e-05]]
+gradient norm: 0.00010694096373611484
+threshold: 0.0001
+
+step: 44
+alpha: 0.2
+x: [[1.00000816]
+ [1.00001616]]
+updated function value: 6.908930602668813e-11
+d: [[-8.16025679e-06]
+ [-1.61626813e-05]]
+gradient norm: 8.555465541454276e-05
+threshold: 0.0001
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
