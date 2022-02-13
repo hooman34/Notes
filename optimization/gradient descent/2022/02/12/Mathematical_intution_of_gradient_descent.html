@@ -98,7 +98,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      4 min read
+      5 min read
     
 </span></p>
 
@@ -148,6 +148,7 @@ window.onload = wrap_img;
     <ul id="toc" class="section-nav">
 <li class="toc-entry toc-h3"><a href="#1.-How-gradient-descent-looks-like">1. How gradient descent looks like </a></li>
 <li class="toc-entry toc-h3"><a href="#2.-How-gradient-descent-works:-simple-maths">2. How gradient descent works: simple maths </a></li>
+<li class="toc-entry toc-h3"><a href="#3.-How-is-gradient-calculated?">3. How is gradient calculated? </a></li>
 <li class="toc-entry toc-h3"><a href="#4.-Newton's-method-from-scratch">4. Newton&#39;s method from scratch </a></li>
 </ul><!--
 #################################################
@@ -421,6 +422,70 @@ Y value when x=6 : 6</p>
 <ul>
 <li><strong>The solution for each step is updated by $x^1 = x^0 + \lambda d^0$, and the direction is where the optimal value gets closer to the global minimum.</strong></li>
 </ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="3.-How-is-gradient-calculated?">
+<a class="anchor" href="#3.-How-is-gradient-calculated?" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. How is gradient calculated?<a class="anchor-link" href="#3.-How-is-gradient-calculated?"> </a>
+</h3>
+<p>There are two aspects in calculating gradient. First is the 'direction', and the second is the 'distance'. <br> Lets say $d$ is for firection and $\alpha$ for step size ('distance'). Then this could be formulated as the following: $f(x^k + \alpha d^k) &lt; f(x^k)$, which means the new value is smaller than the current function value. <br>
+Using Taylor's expanson, it could be formulated as $f(x^k + \alpha d^k) \approx f(x^k) + \alpha\nabla f(x^k)^T d_k$ <br>
+Since $f(x^k + \alpha d^k) &lt; f(x^k)$, we want $\alpha\nabla f(x^k)^T d_k$ to be smaller than zero. The steepest direction $d_k$ would be $-\nabla f(x^k)$ since it is the opposite direction from $\nabla f(x^k)^T$</p>
+<p>Then, the new point is updated every step by $x^{k+1} \leftarrow x_k - \alpha \nabla f(x_k)$</p>
+<p>This process will continue until $||\nabla f(x_k)|| \leq \epsilon$ where $\epsilon$ is a very small number. This is the point where the gradient is small enough or vanishes. This means that there is no more 'movement'.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
+        <p></p>
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># x = np.arange(2, 8, 0.01)</span>
+<span class="c1"># def y(x):</span>
+<span class="c1">#     return (x-5)**2</span>
+
+<span class="c1"># fig, ax = plt.subplots()</span>
+<span class="c1"># ax.plot(x, y(x))</span>
+<span class="c1"># ax.set_xlabel("x")</span>
+<span class="c1"># ax.set_ylabel("y")</span>
+<span class="c1"># ax.fill_between(x, y(x), 9, color='blue', alpha=.1)</span>
+
+<span class="c1"># ax.plot([7], y(7), marker='o', color='red')</span>
+<span class="c1"># ax.plot([5], y(5), marker='o', color='black')</span>
+
+<span class="c1"># def line1(x):</span>
+<span class="c1">#     return 4*x - 24</span>
+<span class="c1"># def line2(x):</span>
+<span class="c1">#     return x*0</span>
+
+<span class="c1"># ax.plot(np.arange(6, 8, 0.01), line1(np.arange(6, 8, 0.01)), color='red')</span>
+<span class="c1"># ax.plot(x, line2(x), color='black');</span>
+<span class="c1"># fig.savefig('my_icons/03_/five.png')</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+    </details>
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/Notes/images/copied_from_nb/my_icons/03_/five.png" alt=""></p>
 
 </div>
 </div>
